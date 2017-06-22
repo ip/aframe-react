@@ -140,16 +140,10 @@ suite('aframe-react', () => {
       </Scene>,
       div
     );
-    div.querySelector('a-scene').addEventListener('loaded', () => {
-      ReactDOM.render(
-        <Scene>
-          <Entity id='sphere' geometry={{primitive: 'sphere'}} material={{color: 'blue'}}>
-            <Entity id='torus' geometry={{primitive: 'torus'}} material={{color: 'orange'}}/>
-          </Entity>
-        </Scene>,
-        div
-      );
-      setTimeout(() => {
+    const scene = div.querySelector('a-scene');
+
+    scene.addEventListener('loaded', () => {
+      scene.addEventListener('child-attached', () => {
         const sphere = div.querySelector('#sphere');
         const torus = div.querySelector('#torus');
         assert.equal(sphere.getAttribute('geometry').primitive, 'sphere');
@@ -158,6 +152,14 @@ suite('aframe-react', () => {
         assert.equal(torus.getAttribute('material').color, 'orange');
         done();
       });
+      ReactDOM.render(
+        <Scene>
+          <Entity id='sphere' geometry={{primitive: 'sphere'}} material={{color: 'blue'}}>
+            <Entity id='torus' geometry={{primitive: 'torus'}} material={{color: 'orange'}}/>
+          </Entity>
+        </Scene>,
+        div
+      );
     });
   });
 
@@ -170,18 +172,20 @@ suite('aframe-react', () => {
       </Scene>,
       div
     );
-    div.querySelector('a-scene').addEventListener('loaded', () => {
+    const scene = div.querySelector('a-scene');
+
+    scene.addEventListener('loaded', () => {
+      scene.addEventListener('child-detached', () => {
+        assert.ok(div.querySelector('#foo'));
+        assert.notOk(div.querySelector('#bar'));
+        done();
+      });
       ReactDOM.render(
         <Scene>
           <Entity id='foo'/>
         </Scene>,
         div
       );
-      setTimeout(() => {
-        assert.ok(div.querySelector('#foo'));
-        assert.notOk(div.querySelector('#bar'));
-        done();
-      });
     });
   });
 
